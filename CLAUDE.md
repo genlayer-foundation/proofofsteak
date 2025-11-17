@@ -45,7 +45,7 @@
 
 ## Project Structure
 
-```
+\`\`\`
 proofofstake-home/
 ├── app/
 │   ├── layout.tsx          # Root layout with metadata
@@ -69,7 +69,7 @@ proofofstake-home/
 ├── tsconfig.json
 ├── components.json         # shadcn/ui configuration
 └── README.md
-```
+\`\`\`
 
 ## Key Components
 
@@ -91,7 +91,7 @@ proofofstake-home/
 - **State Management**: Uses local `hoveredId` state
 
 ### Data Structure
-```typescript
+\`\`\`typescript
 interface SteakSubmission {
   id: number
   image: string
@@ -101,7 +101,7 @@ interface SteakSubmission {
   submittedBy: string    // e.g., "vitalik.eth"
   timestamp: string      // ISO date string
 }
-```
+\`\`\`
 
 ### FloatingActions (`components/floating-actions.tsx`)
 - Fixed position floating buttons (bottom-right)
@@ -137,12 +137,12 @@ interface SteakSubmission {
 ## Development Workflow
 
 ### Running the Project
-```bash
+\`\`\`bash
 nvm use 24.10.0  # Use correct Node version
 pnpm install     # Install dependencies
 pnpm dev         # Start development server
 pnpm build       # Production build
-```
+\`\`\`
 
 ### Important Notes
 - Project auto-syncs with v0.dev deployments
@@ -220,10 +220,10 @@ When making changes:
 Edit `components/steak-grid.tsx` and add to the `steakSubmissions` array.
 
 ### Adding a New Component
-```bash
+\`\`\`bash
 # For shadcn/ui components
 npx shadcn@latest add [component-name]
-```
+\`\`\`
 
 ### Styling Changes
 - Global styles: `app/globals.css`
