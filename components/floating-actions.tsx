@@ -1,7 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import { usePrivy } from '@privy-io/react-auth'
 import type { CategoryTheme } from '@/components/category-grid'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogPortal,
+  DialogOverlay,
+} from '@/components/ui/dialog'
 
 const UploadIcon = () => (
   <svg
@@ -38,13 +49,33 @@ const HelpIcon = () => (
   </svg>
 )
 
+const WalletIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="28"
+    height="28"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+  </svg>
+)
+
 interface FloatingActionsProps {
   theme?: CategoryTheme
 }
 
 export function FloatingActions({ theme }: FloatingActionsProps) {
+  const { login, logout, ready, authenticated, user } = usePrivy()
   const [hoveredUpload, setHoveredUpload] = useState(false)
   const [hoveredHelp, setHoveredHelp] = useState(false)
+  const [hoveredWallet, setHoveredWallet] = useState(false)
 
   const getBorderStyle = (isHovered: boolean) => {
     if (!theme) {
@@ -117,8 +148,65 @@ export function FloatingActions({ theme }: FloatingActionsProps) {
     return { color }
   }
 
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
+  const getWalletAddress = () => {
+    if (!user) return null
+
+    // Check for embedded wallet
+    if (user.wallet?.address) {
+      return user.wallet.address
+    }
+
+    // Check for linked wallets
+    if (user.linkedAccounts) {
+      const walletAccount = user.linkedAccounts.find(
+        (account: any) => account.type === 'wallet'
+      )
+      if (walletAccount?.address) {
+        return walletAccount.address
+      }
+    }
+
+    return null
+  }
+
+  const walletAddress = getWalletAddress()
+
   return (
     <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-4">
+      {/* Wallet Connect Button */}
+      {ready && (
+        <button
+          className="w-16 h-16 rounded-full bg-black/80 backdrop-blur-sm border-2 hover:scale-110 transition-all duration-300 elegant-shimmer cursor-pointer flex items-center justify-center relative"
+          style={{
+            ...getBorderStyle(hoveredWallet),
+            ...getBoxShadow(hoveredWallet)
+          }}
+          onMouseEnter={() => setHoveredWallet(true)}
+          onMouseLeave={() => setHoveredWallet(false)}
+          onClick={() => {
+            if (authenticated) {
+              logout()
+            } else {
+              login()
+            }
+          }}
+          aria-label={authenticated ? 'Disconnect wallet' : 'Connect wallet'}
+        >
+          <span style={getIconColor(hoveredWallet)} className="transition-colors duration-300 flex items-center justify-center relative">
+            <WalletIcon />
+            {/* Connected Status Indicator */}
+            {authenticated && (
+              <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black shadow-lg animate-pulse" />
+            )}
+          </span>
+        </button>
+      )}
+
+      {/* Upload Button */}
       <button
         className="w-16 h-16 rounded-full bg-black/80 backdrop-blur-sm border-2 hover:scale-110 transition-all duration-300 elegant-shimmer cursor-pointer flex items-center justify-center"
         style={{
@@ -133,20 +221,75 @@ export function FloatingActions({ theme }: FloatingActionsProps) {
           <UploadIcon />
         </span>
       </button>
-      <button
-        className="w-16 h-16 rounded-full bg-black/80 backdrop-blur-sm border-2 hover:scale-110 transition-all duration-300 elegant-shimmer cursor-pointer flex items-center justify-center"
-        style={{
-          ...getBorderStyle(hoveredHelp),
-          ...getBoxShadow(hoveredHelp)
-        }}
-        onMouseEnter={() => setHoveredHelp(true)}
-        onMouseLeave={() => setHoveredHelp(false)}
-        aria-label="Help"
-      >
-        <span style={getIconColor(hoveredHelp)} className="transition-colors duration-300 flex items-center justify-center">
-          <HelpIcon />
-        </span>
-      </button>
+
+      {/* Help Dialog */}
+      <Dialog>
+        <DialogTrigger asChild>
+          <button
+            className="w-16 h-16 rounded-full bg-black/80 backdrop-blur-sm border-2 hover:scale-110 transition-all duration-300 elegant-shimmer cursor-pointer flex items-center justify-center"
+            style={{
+              ...getBorderStyle(hoveredHelp),
+              ...getBoxShadow(hoveredHelp)
+            }}
+            onMouseEnter={() => setHoveredHelp(true)}
+            onMouseLeave={() => setHoveredHelp(false)}
+            aria-label="Help"
+          >
+            <span style={getIconColor(hoveredHelp)} className="transition-colors duration-300 flex items-center justify-center">
+              <HelpIcon />
+            </span>
+          </button>
+        </DialogTrigger>
+        <DialogPortal>
+          <DialogOverlay
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(4px)',
+            }}
+          />
+          <DialogContent
+            className="max-w-2xl"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.95)',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
+              color: 'white',
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            <DialogHeader>
+              <DialogTitle
+                className="text-3xl font-black tracking-tight uppercase"
+                style={{ color: 'oklch(0.85 0.08 45)' }}
+              >
+                About This Project
+              </DialogTitle>
+              <DialogDescription style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+                Information about the Proof of Steak project
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+              <p>
+                Proof of Steak is a decentralized application (dApp) that invites users to upload photos showcasing authentic Argentine cultural experiences — with a special highlight on the iconic steak and asado tradition — and evaluates how "Argentinean" each submission appears using GenLayer's decentralized AI consensus (scoring 0–100).
+              </p>
+
+              <p>
+                Photos are ranked on public leaderboards across themed tracks such as food, customs, sports, touristic spots, crypto & community, among others. The platform operates in a transparent and trustless manner, leveraging GenLayer's consensus as a "digital court" where validator nodes powered by diverse AI models collectively decide on subjective cultural scoring — reducing bias and enabling fair, crowdsourced-style cultural evaluation.
+              </p>
+
+              <p className="font-semibold" style={{ color: 'oklch(0.85 0.08 45)' }}>
+                To celebrate Argentina's steak heritage, the top-ranked steak photo will win an invitation to an asado for two people.
+              </p>
+
+              <p className="text-sm italic border-t pt-4 mt-6" style={{ color: 'rgba(255, 255, 255, 0.8)', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+                We are actively seeking sponsors for categories, rewards, and special tracks.
+                <br />
+                For collaboration, questions, or partnership proposals, contact: <a href="https://twitter.com/luck_loce" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 underline transition-opacity" style={{ color: 'oklch(0.85 0.08 45)' }}>Twitter/X: @luck_loce</a>
+              </p>
+            </div>
+          </DialogContent>
+        </DialogPortal>
+      </Dialog>
     </div>
   )
 }
