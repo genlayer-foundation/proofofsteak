@@ -141,7 +141,7 @@ export function CategoryGrid({ submissions, theme, cta }: CategoryGridProps) {
   return (
     <section className="py-24 px-4 md:px-8 max-w-[2000px] mx-auto">
       <div className="mb-20 text-center max-w-4xl mx-auto">
-        <h2 className={`text-6xl md:text-8xl font-black mb-6 leading-tight bg-gradient-to-r ${getCtaHeadingGradient()}`} style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+        <h2 className={`text-4xl md:text-6xl lg:text-8xl font-black mb-6 leading-tight bg-gradient-to-r ${getCtaHeadingGradient()}`} style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           LEADERBOARD
         </h2>
 
