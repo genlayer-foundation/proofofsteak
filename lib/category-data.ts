@@ -19,6 +19,11 @@ export interface CategoryConfig {
   theme: CategoryTheme
   submissions: CategorySubmission[]
   nextCategory?: NextCategoryLink
+  cta?: {
+    heading: string
+    description: string
+    buttonText: string
+  }
 }
 
 // Steak Category
@@ -30,13 +35,18 @@ export const steakCategory: CategoryConfig = {
   },
   theme: {
     emoji: '🥩',
-    title: 'Steak Leaderboard',
+    title: 'Steak',
     subtitle: 'Each submission is evaluated by an intelligent contract through a consensus of LLMs',
     primaryColor: 'amber',
     accentColor: 'orange',
     gradientFrom: 'from-amber-600',
     gradientVia: 'via-orange-500',
     gradientTo: 'to-amber-400',
+  },
+  cta: {
+    heading: 'GOT A PRIME CUT?',
+    description: 'Submit your best steak photo and let the AI jury decide if it deserves a spot on the leaderboard',
+    buttonText: 'UPLOAD YOUR STEAK',
   },
   submissions: [
     {
@@ -141,13 +151,18 @@ export const mateCategory: CategoryConfig = {
   },
   theme: {
     emoji: '🧉',
-    title: 'Mate Leaderboard',
+    title: 'Mate',
     subtitle: 'Each submission is evaluated by an intelligent contract through a consensus of LLMs',
     primaryColor: 'green',
     accentColor: 'emerald',
     gradientFrom: 'from-green-600',
     gradientVia: 'via-green-500',
     gradientTo: 'to-green-400',
+  },
+  cta: {
+    heading: 'BREWED PERFECTION?',
+    description: 'Submit your best mate photo and let the AI jury decide if it deserves a spot on the leaderboard',
+    buttonText: 'UPLOAD YOUR MATE',
   },
   submissions: [
     {
@@ -180,13 +195,18 @@ export const veggiesCategory: CategoryConfig = {
   },
   theme: {
     emoji: '🥦',
-    title: 'Veggie Leaderboard',
+    title: 'Veggie',
     subtitle: 'Each submission is evaluated by an intelligent contract through a consensus of LLMs',
     primaryColor: 'green',
     accentColor: 'emerald',
     gradientFrom: 'from-green-600',
     gradientVia: 'via-green-500',
     gradientTo: 'to-green-400',
+  },
+  cta: {
+    heading: 'GOT GREENS?',
+    description: 'Submit your best veggie photo and let the AI jury decide if it deserves a spot on the leaderboard',
+    buttonText: 'UPLOAD YOUR VEGGIE',
   },
   submissions: [
     {
@@ -219,13 +239,18 @@ export const gauchoCategory: CategoryConfig = {
   },
   theme: {
     emoji: '🤠',
-    title: 'Gaucho Leaderboard',
+    title: 'Gaucho',
     subtitle: 'Each submission is evaluated by an intelligent contract through a consensus of LLMs',
     primaryColor: 'amber',
     accentColor: 'yellow',
     gradientFrom: 'from-amber-600',
     gradientVia: 'via-yellow-500',
     gradientTo: 'to-amber-400',
+  },
+  cta: {
+    heading: 'CAPTURED THE SPIRIT?',
+    description: 'Submit your best gaucho photo and let the AI jury decide if it deserves a spot on the leaderboard',
+    buttonText: 'UPLOAD YOUR GAUCHO',
   },
   submissions: [
     {
@@ -258,13 +283,18 @@ export const futbolCategory: CategoryConfig = {
   },
   theme: {
     emoji: '⚽',
-    title: 'Futbol Leaderboard',
+    title: 'Futbol',
     subtitle: 'Each submission is evaluated by an intelligent contract through a consensus of LLMs',
     primaryColor: 'blue',
     accentColor: 'sky',
     gradientFrom: 'from-blue-600',
     gradientVia: 'via-sky-500',
     gradientTo: 'to-blue-400',
+  },
+  cta: {
+    heading: 'SCORED A GOAL?',
+    description: 'Submit your best futbol photo and let the AI jury decide if it deserves a spot on the leaderboard',
+    buttonText: 'UPLOAD YOUR FUTBOL',
   },
   submissions: [
     {
@@ -297,13 +327,18 @@ export const easterEggsCategory: CategoryConfig = {
   },
   theme: {
     emoji: '🥚',
-    title: 'Easter Eggs Leaderboard',
+    title: 'Easter Egg',
     subtitle: 'Each submission is evaluated by an intelligent contract through a consensus of LLMs',
     primaryColor: 'purple',
     accentColor: 'violet',
     gradientFrom: 'from-purple-600',
     gradientVia: 'via-violet-500',
     gradientTo: 'to-purple-400',
+  },
+  cta: {
+    heading: 'FOUND A SECRET?',
+    description: 'Submit your best easter egg photo and let the AI jury decide if it deserves a spot on the leaderboard',
+    buttonText: 'UPLOAD YOUR EASTER EGG',
   },
   submissions: [
     {

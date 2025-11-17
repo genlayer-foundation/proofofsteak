@@ -9,10 +9,10 @@ export default function VeggiesPage() {
   return (
     <main className="min-h-screen bg-black">
       <CategoryHero {...veggiesCategory.hero} />
-      <CategoryGrid submissions={veggiesCategory.submissions} theme={veggiesCategory.theme} />
+      <CategoryGrid submissions={veggiesCategory.submissions} theme={veggiesCategory.theme} cta={veggiesCategory.cta} />
       {veggiesCategory.nextCategory && <CategoryLink nextCategory={veggiesCategory.nextCategory} />}
       <Footer />
-      <FloatingActions />
+      <FloatingActions theme={veggiesCategory.theme} />
     </main>
   )
 }

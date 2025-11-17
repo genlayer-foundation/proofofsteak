@@ -9,10 +9,10 @@ export default function MatePage() {
   return (
     <main className="min-h-screen bg-black">
       <CategoryHero {...mateCategory.hero} />
-      <CategoryGrid submissions={mateCategory.submissions} theme={mateCategory.theme} />
+      <CategoryGrid submissions={mateCategory.submissions} theme={mateCategory.theme} cta={mateCategory.cta} />
       {mateCategory.nextCategory && <CategoryLink nextCategory={mateCategory.nextCategory} />}
       <Footer />
-      <FloatingActions />
+      <FloatingActions theme={mateCategory.theme} />
     </main>
   )
 }

@@ -26,23 +26,130 @@ export interface CategoryTheme {
 interface CategoryGridProps {
   submissions: CategorySubmission[]
   theme: CategoryTheme
+  cta?: {
+    heading: string
+    description: string
+    buttonText: string
+  }
 }
 
-export function CategoryGrid({ submissions, theme }: CategoryGridProps) {
+export function CategoryGrid({ submissions, theme, cta }: CategoryGridProps) {
   const [hoveredId, setHoveredId] = useState<number | null>(null)
+
+  // Generate dynamic color classes based on theme
+  const getBorderColor = () => {
+    const colorMap: Record<string, string> = {
+      amber: 'hover:border-amber-500/50',
+      orange: 'hover:border-orange-500/50',
+      green: 'hover:border-green-500/50',
+      emerald: 'hover:border-emerald-500/50',
+      blue: 'hover:border-blue-500/50',
+      sky: 'hover:border-sky-500/50',
+      purple: 'hover:border-purple-500/50',
+      violet: 'hover:border-violet-500/50',
+      yellow: 'hover:border-yellow-500/50',
+    }
+    return colorMap[theme.primaryColor] || 'hover:border-primary/50'
+  }
+
+  const getGlowColor = () => {
+    const colorMap: Record<string, string> = {
+      amber: 'hover:shadow-[0_0_40px_rgba(251,191,36,0.3)]',
+      orange: 'hover:shadow-[0_0_40px_rgba(251,146,60,0.3)]',
+      green: 'hover:shadow-[0_0_40px_rgba(34,197,94,0.3)]',
+      emerald: 'hover:shadow-[0_0_40px_rgba(52,211,153,0.3)]',
+      blue: 'hover:shadow-[0_0_40px_rgba(59,130,246,0.3)]',
+      sky: 'hover:shadow-[0_0_40px_rgba(56,189,248,0.3)]',
+      purple: 'hover:shadow-[0_0_40px_rgba(168,85,247,0.3)]',
+      violet: 'hover:shadow-[0_0_40px_rgba(139,92,246,0.3)]',
+      yellow: 'hover:shadow-[0_0_40px_rgba(234,179,8,0.3)]',
+    }
+    return colorMap[theme.primaryColor] || 'hover:shadow-[0_0_40px_rgba(255,140,0,0.3)]'
+  }
+
+  const getCtaBorderColor = () => {
+    const colorMap: Record<string, string> = {
+      amber: 'border-amber-500/30 hover:border-amber-500',
+      orange: 'border-orange-500/30 hover:border-orange-500',
+      green: 'border-green-500/30 hover:border-green-500',
+      emerald: 'border-emerald-500/30 hover:border-emerald-500',
+      blue: 'border-blue-500/30 hover:border-blue-500',
+      sky: 'border-sky-500/30 hover:border-sky-500',
+      purple: 'border-purple-500/30 hover:border-purple-500',
+      violet: 'border-violet-500/30 hover:border-violet-500',
+      yellow: 'border-yellow-500/30 hover:border-yellow-500',
+    }
+    return colorMap[theme.primaryColor] || 'border-primary/30 hover:border-primary'
+  }
+
+  const getCtaGlowColor = () => {
+    const colorMap: Record<string, string> = {
+      amber: 'hover:shadow-[0_0_50px_rgba(251,191,36,0.4)]',
+      orange: 'hover:shadow-[0_0_50px_rgba(251,146,60,0.4)]',
+      green: 'hover:shadow-[0_0_50px_rgba(34,197,94,0.4)]',
+      emerald: 'hover:shadow-[0_0_50px_rgba(52,211,153,0.4)]',
+      blue: 'hover:shadow-[0_0_50px_rgba(59,130,246,0.4)]',
+      sky: 'hover:shadow-[0_0_50px_rgba(56,189,248,0.4)]',
+      purple: 'hover:shadow-[0_0_50px_rgba(168,85,247,0.4)]',
+      violet: 'hover:shadow-[0_0_50px_rgba(139,92,246,0.4)]',
+      yellow: 'hover:shadow-[0_0_50px_rgba(234,179,8,0.4)]',
+    }
+    return colorMap[theme.primaryColor] || 'hover:shadow-[0_0_50px_rgba(255,140,0,0.4)]'
+  }
+
+  const getCtaHeadingGradient = () => {
+    // Use theme gradient classes for the heading
+    return `${theme.gradientFrom} ${theme.gradientVia} ${theme.gradientTo}`
+  }
+
+  const getDividerGradientStyle = (direction: 'left' | 'right') => {
+    const colorMap: Record<string, string> = {
+      amber: 'rgba(251, 191, 36, 0.5)',
+      orange: 'rgba(251, 146, 60, 0.5)',
+      green: 'rgba(34, 197, 94, 0.5)',
+      emerald: 'rgba(52, 211, 153, 0.5)',
+      blue: 'rgba(59, 130, 246, 0.5)',
+      sky: 'rgba(56, 189, 248, 0.5)',
+      purple: 'rgba(168, 85, 247, 0.5)',
+      violet: 'rgba(139, 92, 246, 0.5)',
+      yellow: 'rgba(234, 179, 8, 0.5)',
+    }
+    const color = colorMap[theme.primaryColor] || 'rgba(255, 140, 0, 0.5)'
+    return {
+      background: direction === 'right'
+        ? `linear-gradient(to right, transparent, ${color})`
+        : `linear-gradient(to left, transparent, ${color})`
+    }
+  }
+
+  const getDotStyle = () => {
+    const colorMap: Record<string, string> = {
+      amber: 'rgba(251, 191, 36, 0.6)',
+      orange: 'rgba(251, 146, 60, 0.6)',
+      green: 'rgba(34, 197, 94, 0.6)',
+      emerald: 'rgba(52, 211, 153, 0.6)',
+      blue: 'rgba(59, 130, 246, 0.6)',
+      sky: 'rgba(56, 189, 248, 0.6)',
+      purple: 'rgba(168, 85, 247, 0.6)',
+      violet: 'rgba(139, 92, 246, 0.6)',
+      yellow: 'rgba(234, 179, 8, 0.6)',
+    }
+    const color = colorMap[theme.primaryColor] || 'rgba(255, 140, 0, 0.6)'
+    return { backgroundColor: color }
+  }
 
   return (
     <section className="py-24 px-4 md:px-8 max-w-[2000px] mx-auto">
       <div className="mb-20 text-center max-w-4xl mx-auto">
-        <h2 className="text-6xl md:text-8xl font-black mb-6 leading-tight text-white steak-shine" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+        <h2 className={`text-6xl md:text-8xl font-black mb-6 leading-tight bg-gradient-to-r ${getCtaHeadingGradient()}`} style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           LEADERBOARD
         </h2>
 
         {/* Decorative divider */}
         <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="h-0.5 w-16 bg-gradient-to-r from-transparent to-primary/50"></div>
-          <div className="w-2 h-2 rounded-full bg-primary/60"></div>
-          <div className="h-0.5 w-16 bg-gradient-to-l from-transparent to-primary/50"></div>
+          <div className="h-0.5 w-16" style={getDividerGradientStyle('right')}></div>
+          <div className="w-2 h-2 rounded-full" style={getDotStyle()}></div>
+          <div className="h-0.5 w-16" style={getDividerGradientStyle('left')}></div>
         </div>
 
         <p className="text-lg md:text-xl text-white/90 font-medium tracking-wide mb-3">
@@ -58,7 +165,7 @@ export function CategoryGrid({ submissions, theme }: CategoryGridProps) {
         {submissions.map((item, index) => (
           <div
             key={item.id}
-            className="relative aspect-square overflow-hidden group cursor-pointer border border-border/30 bg-black transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(255,140,0,0.3)]"
+            className={`relative aspect-square overflow-hidden group cursor-pointer border border-border/30 bg-black transition-all duration-500 ${getBorderColor()} ${getGlowColor()}`}
             onMouseEnter={() => setHoveredId(item.id)}
             onMouseLeave={() => setHoveredId(null)}
           >
@@ -151,6 +258,44 @@ export function CategoryGrid({ submissions, theme }: CategoryGridProps) {
           </div>
         ))}
       </div>
+
+      {/* Load More Button */}
+      <div className="mt-16 flex justify-center">
+        <button className={`group relative px-12 py-5 bg-black/80 border border-white/10 rounded-lg transition-all duration-500 ${getBorderColor()} ${getGlowColor()} hover:scale-105 elegant-shimmer`}>
+          <div className="absolute inset-0 bg-primary/10 blur-xl rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <span className="relative text-xl font-black text-white tracking-wider">
+            LOAD MORE
+          </span>
+        </button>
+      </div>
+
+      {/* Upload CTA */}
+      {cta && (
+        <div className="mt-32 max-w-4xl mx-auto text-center">
+          {/* Decorative divider */}
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="h-0.5 w-24" style={getDividerGradientStyle('right')}></div>
+            <div className="w-3 h-3 rounded-full" style={getDotStyle()}></div>
+            <div className="h-0.5 w-24" style={getDividerGradientStyle('left')}></div>
+          </div>
+
+          <h3 className={`text-5xl md:text-7xl font-black mb-6 leading-tight bg-gradient-to-r ${getCtaHeadingGradient()}`} style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            {cta.heading}
+          </h3>
+
+          <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">
+            {cta.description}
+          </p>
+
+          <button className={`group relative px-16 py-6 bg-primary/10 border-2 ${getCtaBorderColor()} rounded-lg transition-all duration-500 ${getCtaGlowColor()} hover:scale-105 elegant-shimmer`}>
+            <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <span className="relative text-2xl md:text-3xl font-black text-white tracking-wider flex items-center gap-4">
+              <span className="text-3xl">{theme.emoji}</span>
+              {cta.buttonText}
+            </span>
+          </button>
+        </div>
+      )}
     </section>
   )
 }

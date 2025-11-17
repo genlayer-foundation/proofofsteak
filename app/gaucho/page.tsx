@@ -9,10 +9,10 @@ export default function GauchoPage() {
   return (
     <main className="min-h-screen bg-black">
       <CategoryHero {...gauchoCategory.hero} />
-      <CategoryGrid submissions={gauchoCategory.submissions} theme={gauchoCategory.theme} />
+      <CategoryGrid submissions={gauchoCategory.submissions} theme={gauchoCategory.theme} cta={gauchoCategory.cta} />
       {gauchoCategory.nextCategory && <CategoryLink nextCategory={gauchoCategory.nextCategory} />}
       <Footer />
-      <FloatingActions />
+      <FloatingActions theme={gauchoCategory.theme} />
     </main>
   )
 }

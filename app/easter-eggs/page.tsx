@@ -9,10 +9,10 @@ export default function EasterEggsPage() {
   return (
     <main className="min-h-screen bg-black">
       <CategoryHero {...easterEggsCategory.hero} />
-      <CategoryGrid submissions={easterEggsCategory.submissions} theme={easterEggsCategory.theme} />
+      <CategoryGrid submissions={easterEggsCategory.submissions} theme={easterEggsCategory.theme} cta={easterEggsCategory.cta} />
       {easterEggsCategory.nextCategory && <CategoryLink nextCategory={easterEggsCategory.nextCategory} />}
       <Footer />
-      <FloatingActions />
+      <FloatingActions theme={easterEggsCategory.theme} />
     </main>
   )
 }

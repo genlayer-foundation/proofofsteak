@@ -9,10 +9,10 @@ export default function FutbolPage() {
   return (
     <main className="min-h-screen bg-black">
       <CategoryHero {...futbolCategory.hero} />
-      <CategoryGrid submissions={futbolCategory.submissions} theme={futbolCategory.theme} />
+      <CategoryGrid submissions={futbolCategory.submissions} theme={futbolCategory.theme} cta={futbolCategory.cta} />
       {futbolCategory.nextCategory && <CategoryLink nextCategory={futbolCategory.nextCategory} />}
       <Footer />
-      <FloatingActions />
+      <FloatingActions theme={futbolCategory.theme} />
     </main>
   )
 }

@@ -9,10 +9,10 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-black">
       <CategoryHero {...steakCategory.hero} />
-      <CategoryGrid submissions={steakCategory.submissions} theme={steakCategory.theme} />
+      <CategoryGrid submissions={steakCategory.submissions} theme={steakCategory.theme} cta={steakCategory.cta} />
       {steakCategory.nextCategory && <CategoryLink nextCategory={steakCategory.nextCategory} />}
       <Footer />
-      <FloatingActions />
+      <FloatingActions theme={steakCategory.theme} />
     </main>
   )
 }
