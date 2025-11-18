@@ -5,18 +5,25 @@ import { Footer } from "@/components/footer";
 import { findSubmissionById } from "@/lib/submission-utils";
 
 interface SubmissionPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
+  searchParams: Promise<{
+    image?: string;
+  }>;
 }
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: SubmissionPageProps): Promise<Metadata> {
-  const submissionId = parseInt(params.id, 10);
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const submissionId = parseInt(resolvedParams.id, 10);
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://proofofsteak.fun";
   const defaultImageUrl = `${baseUrl}/hero-steak-hd.jpg`;
+  const waitingImageUrl = resolvedSearchParams.image || defaultImageUrl;
 
   if (isNaN(submissionId)) {
     return {
@@ -25,11 +32,11 @@ export async function generateMetadata({
       openGraph: {
         title: "PROOF OF STEAK",
         description: "AI consensus making sure doneness of steak",
-        url: `${baseUrl}/submission/${params.id}`,
+        url: `${baseUrl}/submission/${resolvedParams.id}`,
         siteName: "PROOF OF STEAK",
         images: [
           {
-            url: defaultImageUrl,
+            url: waitingImageUrl,
             width: 1200,
             height: 630,
             alt: "PROOF OF STEAK",
@@ -43,7 +50,7 @@ export async function generateMetadata({
         description: "AI consensus making sure doneness of steak",
         images: [
           {
-            url: defaultImageUrl,
+            url: waitingImageUrl,
             alt: "PROOF OF STEAK",
           },
         ],
@@ -64,7 +71,7 @@ export async function generateMetadata({
         siteName: "PROOF OF STEAK",
         images: [
           {
-            url: defaultImageUrl,
+            url: waitingImageUrl,
             width: 1200,
             height: 630,
             alt: "PROOF OF STEAK",
@@ -78,7 +85,7 @@ export async function generateMetadata({
         description: "AI consensus making sure doneness of steak",
         images: [
           {
-            url: defaultImageUrl,
+            url: waitingImageUrl,
             alt: "PROOF OF STEAK",
           },
         ],
@@ -129,14 +136,20 @@ export async function generateMetadata({
   };
 }
 
-export default function SubmissionPage({ params }: SubmissionPageProps) {
-  const submissionId = parseInt(params.id, 10);
+export default async function SubmissionPage({
+  params,
+  searchParams,
+}: SubmissionPageProps) {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const submissionId = parseInt(resolvedParams.id, 10);
+  const imageUrl = resolvedSearchParams.image;
 
   if (isNaN(submissionId)) {
     return (
       <main className="h-screen bg-black flex flex-col">
         <div className="flex-1">
-          <SubmissionWaiting />
+          <SubmissionWaiting imageUrl={imageUrl} />
         </div>
         <Footer />
       </main>
@@ -149,7 +162,7 @@ export default function SubmissionPage({ params }: SubmissionPageProps) {
     return (
       <main className="h-screen bg-black flex flex-col">
         <div className="flex-1">
-          <SubmissionWaiting />
+          <SubmissionWaiting imageUrl={imageUrl} />
         </div>
         <Footer />
       </main>

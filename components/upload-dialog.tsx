@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -56,6 +57,7 @@ interface UploadDialogProps {
 
 export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
   const { login, authenticated, user } = usePrivy()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -124,20 +126,17 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
       })
       console.log('========================')
 
-      // Show success toast with Cloudinary URL
-      toast.success('Submission received!', {
-        description: 'Your photo has been uploaded successfully. Our AI jury is reviewing it!',
-        duration: 4000,
-      })
+      // Generate a temporary ID for the submission (using timestamp + random)
+      const tempId = `pending-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+      const imageUrl = encodeURIComponent(result.data.originalUrl)
 
-      // Reset form and close dialog
+      // Reset form and close dialog immediately
       form.reset()
       setImagePreview(null)
+      setOpen(false)
 
-      // Close dialog after a short delay
-      setTimeout(() => {
-        setOpen(false)
-      }, 2000)
+      // Redirect to waiting page with the image
+      router.push(`/submission/${tempId}?image=${imageUrl}`)
     } catch (error) {
       console.error('Upload error:', error)
 

@@ -3,11 +3,23 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-export function SubmissionWaiting() {
+interface SubmissionWaitingProps {
+  imageUrl?: string;
+}
+
+export function SubmissionWaiting({ imageUrl }: SubmissionWaitingProps) {
+  // Always use an image - prefer provided imageUrl, fallback to default hero image
+  const backgroundImage = imageUrl || "/hero-steak-hd.jpg";
+
   return (
     <div className="h-full bg-black flex flex-col relative overflow-hidden">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-orange-900/20 to-amber-800/20 animate-pulse" />
+      {/* Background Image - Always shown */}
+      <img
+        src={backgroundImage}
+        alt="Submission"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30" />
 
       {/* Back button - Top left */}
       <div className="absolute top-8 left-8 z-20">
