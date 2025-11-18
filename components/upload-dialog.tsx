@@ -83,38 +83,71 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
   const onSubmit = async (data: UploadFormValues) => {
     setIsSubmitting(true)
 
-    // Mock submission - log data to console
-    console.log('=== MOCK UPLOAD SUBMISSION ===')
-    console.log('User:', user?.wallet?.address || user?.email?.address)
-    console.log('Name:', data.name || '(not provided)')
-    console.log('Category:', categoryTheme.title)
-    console.log('Location:', data.location)
-    console.log('Description:', data.description)
-    console.log('Image:', {
-      name: data.image[0].name,
-      size: data.image[0].size,
-      type: data.image[0].type,
-    })
-    console.log('=============================')
+    try {
+      // Create FormData to send to API
+      const formData = new FormData()
+      formData.append('image', data.image[0])
+      formData.append('name', data.name || '')
+      formData.append('location', data.location)
+      formData.append('description', data.description)
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+      // Log submission details
+      console.log('=== UPLOAD SUBMISSION ===')
+      console.log('User:', user?.wallet?.address || user?.email?.address)
+      console.log('Name:', data.name || '(not provided)')
+      console.log('Category:', categoryTheme.title)
+      console.log('Location:', data.location)
+      console.log('Description:', data.description)
+      console.log('Image:', {
+        name: data.image[0].name,
+        size: data.image[0].size,
+        type: data.image[0].type,
+      })
 
-    // Show success toast
-    toast.success('Submission received!', {
-      description: 'Our AI jury is reviewing your submission. Stay tuned!',
-      duration: 4000,
-    })
+      // Upload to Cloudinary via our API
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
 
-    // Reset form and close dialog
-    setIsSubmitting(false)
-    form.reset()
-    setImagePreview(null)
+      const result = await response.json()
 
-    // Close dialog after a short delay
-    setTimeout(() => {
-      setOpen(false)
-    }, 2000)
+      if (!response.ok) {
+        throw new Error(result.error || 'Upload failed')
+      }
+
+      console.log('Upload successful:', result.data)
+      console.log('Image URLs:', {
+        original: result.data.originalUrl,
+        leaderboard: result.data.leaderboardUrl,
+        analysis: result.data.analysisUrl,
+      })
+      console.log('========================')
+
+      // Show success toast with Cloudinary URL
+      toast.success('Submission received!', {
+        description: 'Your photo has been uploaded successfully. Our AI jury is reviewing it!',
+        duration: 4000,
+      })
+
+      // Reset form and close dialog
+      form.reset()
+      setImagePreview(null)
+
+      // Close dialog after a short delay
+      setTimeout(() => {
+        setOpen(false)
+      }, 2000)
+    } catch (error) {
+      console.error('Upload error:', error)
+
+      toast.error('Upload failed', {
+        description: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
+        duration: 4000,
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // Color maps for dynamic styling
