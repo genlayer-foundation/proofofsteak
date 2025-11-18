@@ -1,6 +1,12 @@
 'use client'
 
 import { PrivyProvider } from '@privy-io/react-auth'
+import { WagmiProvider } from '@privy-io/wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { config } from '@/lib/wagmi-config'
+import { genlayerStudio } from '@/lib/wagmi-config'
+
+const queryClient = new QueryClient()
 
 export function PrivyProviderWrapper({ children }: { children: React.ReactNode }) {
   return (
@@ -17,9 +23,15 @@ export function PrivyProviderWrapper({ children }: { children: React.ReactNode }
         embeddedWallets: {
           createOnLogin: 'users-without-wallets',
         },
+        defaultChain: genlayerStudio,
+        supportedChains: [genlayerStudio],
       }}
     >
-      {children}
+      <QueryClientProvider client={queryClient}>
+        <WagmiProvider config={config}>
+          {children}
+        </WagmiProvider>
+      </QueryClientProvider>
     </PrivyProvider>
   )
 }
