@@ -27,6 +27,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { CategoryTheme } from './category-grid'
+import { analyzeImage } from '@/lib/genlayer/genlayer.js'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
@@ -119,12 +120,23 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
       }
 
       console.log('Upload successful:', result.data)
-      console.log('Image URLs:', {
-        original: result.data.originalUrl,
-        leaderboard: result.data.leaderboardUrl,
-        analysis: result.data.analysisUrl,
+
+      // Submit to smart contract for AI analysis
+      const userAddress = user?.wallet?.address
+      if (!userAddress) {
+        throw new Error('Wallet address not found')
+      }
+
+      const contractResult = await analyzeImage(
+        result.data.analysisUrl,
+        data.description,
+        userAddress
+      )
+
+      console.log('Smart contract submission successful:', {
+        transactionHash: contractResult.hash,
+        status: contractResult.receipt?.status
       })
-      console.log('========================')
 
       // Generate a temporary ID for the submission (using timestamp + random)
       const tempId = `pending-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
@@ -135,7 +147,12 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
       setImagePreview(null)
       setOpen(false)
 
-      // Redirect to waiting page with the image
+      // Show success and redirect to waiting page
+      toast.success('Submitted for AI analysis!', {
+        description: 'Your submission is being analyzed by our AI jury.',
+        duration: 4000,
+      })
+
       router.push(`/submission/${tempId}?image=${imageUrl}`)
     } catch (error) {
       console.error('Upload error:', error)

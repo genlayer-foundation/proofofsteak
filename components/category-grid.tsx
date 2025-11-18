@@ -33,9 +33,12 @@ interface CategoryGridProps {
     description: string
     buttonText: string
   }
+  onLoadMore?: () => void
+  hasMore?: boolean
+  isLoading?: boolean
 }
 
-export function CategoryGrid({ submissions, theme, cta }: CategoryGridProps) {
+export function CategoryGrid({ submissions, theme, cta, onLoadMore, hasMore, isLoading }: CategoryGridProps) {
   const [hoveredId, setHoveredId] = useState<number | null>(null)
 
   // Generate dynamic color classes based on theme
@@ -267,14 +270,20 @@ export function CategoryGrid({ submissions, theme, cta }: CategoryGridProps) {
       </div>
 
       {/* Load More Button */}
-      <div className="mt-16 flex justify-center">
-        <button className={`group relative px-12 py-5 bg-black/80 border border-white/10 rounded-lg transition-all duration-500 ${getBorderColor()} ${getGlowColor()} hover:scale-105 elegant-shimmer`}>
-          <div className="absolute inset-0 bg-primary/10 blur-xl rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <span className="relative text-xl font-black text-white tracking-wider">
-            LOAD MORE
-          </span>
-        </button>
-      </div>
+      {hasMore && (
+        <div className="mt-16 flex justify-center">
+          <button
+            onClick={onLoadMore}
+            disabled={isLoading}
+            className={`group relative px-12 py-5 bg-black/80 border border-white/10 rounded-lg transition-all duration-500 ${getBorderColor()} ${getGlowColor()} hover:scale-105 elegant-shimmer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
+          >
+            <div className="absolute inset-0 bg-primary/10 blur-xl rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <span className="relative text-xl font-black text-white tracking-wider">
+              {isLoading ? 'LOADING...' : 'LOAD MORE'}
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* Upload CTA */}
       {cta && (
