@@ -23,19 +23,10 @@ export function SubmissionWaiting({ imageUrl, transactionHash }: SubmissionWaiti
 
     const waitForConfirmation = async () => {
       try {
-        console.log('Waiting for transaction confirmation:', transactionHash);
         const result = await waitForTransactionConfirmation(transactionHash);
 
-        console.log('Transaction confirmation result:', {
-          success: result.success,
-          receipt: result.receipt,
-          hasReceipt: !!result.receipt,
-          receiptStatus: result.receipt?.status,
-          receiptKeys: result.receipt ? Object.keys(result.receipt) : []
-        });
 
         if (result.success && result.receipt) {
-          console.log('Transaction confirmed! Reloading page to show submission...');
           // Reload the current page to fetch the now-available submission data
           router.refresh();
         } else {

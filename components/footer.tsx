@@ -9,7 +9,7 @@ export function Footer() {
           {/* Left: Social Links */}
           <div className="flex items-center gap-6">
             <a
-              href="https://x.com"
+              href="https://x.com/GenLayer"
               target="_blank"
               rel="noopener noreferrer"
               className="text-base font-bold text-muted-foreground/60 hover:text-foreground transition-all duration-300 hover:scale-110"
@@ -20,7 +20,7 @@ export function Footer() {
             <span className="text-muted-foreground/30">·</span>
 
             <a
-              href="https://github.com"
+              href="https://github.com/genlayer-foundation/proofofsteak"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-base font-bold text-muted-foreground/60 hover:text-foreground transition-all duration-300 hover:scale-110"

@@ -100,19 +100,6 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
       formData.append('location', data.location)
       formData.append('description', data.description)
 
-      // Log submission details
-      console.log('=== UPLOAD SUBMISSION ===')
-      console.log('Submission ID:', submissionId)
-      console.log('User:', user?.wallet?.address || user?.email?.address)
-      console.log('Name:', data.name || '(not provided)')
-      console.log('Category:', categoryTheme.title)
-      console.log('Location:', data.location)
-      console.log('Description:', data.description)
-      console.log('Image:', {
-        name: data.image[0].name,
-        size: data.image[0].size,
-        type: data.image[0].type,
-      })
 
       // Upload to Cloudinary via our API
       const response = await fetch('/api/upload', {
@@ -126,7 +113,6 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
         throw new Error(result.error || 'Upload failed')
       }
 
-      console.log('Upload successful:', result.data)
 
       // Ensure wallet is on the correct GenLayer network
       await ensureCorrectNetwork()
@@ -151,7 +137,6 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
         false // Don't wait - navigate to waiting page immediately
       )
 
-      console.log('Smart contract transaction submitted:', { hash, submissionId, userAddress })
 
       const imageUrl = encodeURIComponent(result.data.originalUrl)
 

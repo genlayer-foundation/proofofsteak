@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { SubmissionDetail } from "@/components/submission-detail";
 import { SubmissionWaiting } from "@/components/submission-waiting";
 import { Footer } from "@/components/footer";
-import { findSubmissionById } from "@/lib/submission-utils";
 import { getAnalysisById } from "@/lib/genlayer/genlayer.js";
 import { getCategoryTheme } from "@/lib/category-data";
 
@@ -62,84 +61,33 @@ export async function generateMetadata({
     };
   }
 
-  // Check if it's a numeric ID (old static data) vs string ID (GenLayer data)
-  const numericId = parseInt(submissionId, 10);
-  let result = null;
-
-  if (!isNaN(numericId)) {
-    result = findSubmissionById(numericId);
-  }
-
-  if (!result) {
-    return {
-      title: "PROOF OF STEAK",
-      description: "AI consensus making sure doneness of steak",
-      openGraph: {
-        title: "PROOF OF STEAK",
-        description: "AI consensus making sure doneness of steak",
-        url: `${baseUrl}/s/${submissionId}`,
-        siteName: "PROOF OF STEAK",
-        images: [
-          {
-            url: waitingImageUrl,
-            width: 1200,
-            height: 630,
-            alt: "PROOF OF STEAK",
-          },
-        ],
-        type: "website",
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: "PROOF OF STEAK",
-        description: "AI consensus making sure doneness of steak",
-        images: [
-          {
-            url: waitingImageUrl,
-            alt: "PROOF OF STEAK",
-          },
-        ],
-      },
-    };
-  }
-
-  const { submission, theme, categoryTitle } = result;
-  const imageUrl = submission.image.startsWith("/")
-    ? `${baseUrl}${submission.image}`
-    : submission.image;
-
+  // For all other cases, return generic metadata
   return {
-    title: `${submission.name} | PROOF OF STEAK`,
-    description:
-      submission.description ||
-      `${submission.name} - ${categoryTitle} from ${submission.location}. ${submission.votes} votes.`,
+    title: "PROOF OF STEAK",
+    description: "AI consensus-driven steak leaderboard for DevConnect 2025 Buenos Aires",
     openGraph: {
-      title: `${submission.name} | PROOF OF STEAK`,
-      description:
-        submission.description ||
-        `${submission.name} - ${categoryTitle} from ${submission.location}`,
+      title: "PROOF OF STEAK",
+      description: "AI consensus-driven steak leaderboard for DevConnect 2025 Buenos Aires",
       url: `${baseUrl}/s/${submissionId}`,
       siteName: "PROOF OF STEAK",
       images: [
         {
-          url: imageUrl,
+          url: waitingImageUrl,
           width: 1200,
           height: 630,
-          alt: submission.name,
+          alt: "PROOF OF STEAK",
         },
       ],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${submission.name} | PROOF OF STEAK`,
-      description:
-        submission.description ||
-        `${submission.name} - ${categoryTitle} from ${submission.location}`,
+      title: "PROOF OF STEAK",
+      description: "AI consensus-driven steak leaderboard for DevConnect 2025 Buenos Aires",
       images: [
         {
-          url: imageUrl,
-          alt: submission.name,
+          url: waitingImageUrl,
+          alt: "PROOF OF STEAK",
         },
       ],
     },
