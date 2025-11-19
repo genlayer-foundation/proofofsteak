@@ -28,6 +28,7 @@ export async function generateMetadata({
   const defaultImageUrl = `${baseUrl}/hero-steak-hd.jpg`;
   const waitingImageUrl = resolvedSearchParams.image || defaultImageUrl;
 
+  // Handle waiting or invalid ID state
   if (isNaN(submissionId)) {
     return {
       title: "PROOF OF STEAK",
@@ -61,7 +62,48 @@ export async function generateMetadata({
     };
   }
 
-  // For all other cases, return generic metadata
+  // Try to fetch submission data for dynamic metadata
+  try {
+    const submission = await getAnalysisById(resolvedParams.id);
+
+    if (submission) {
+      const categoryData = getCategoryTheme(submission.category);
+      const title = `${submission.name} | ${categoryData.theme.title}`;
+      const description = submission.description || `AI Jury Score: ${submission.score}/1000. ${categoryData.theme.subtitle}`;
+      // Use analysis_url (1024px optimized) for OG image - perfect size for social sharing
+      const ogImageUrl = submission._original?.analysis_url || submission.image;
+
+      return {
+        title,
+        description,
+        openGraph: {
+          title,
+          description,
+          url: `${baseUrl}/s/${submissionId}`,
+          siteName: "PROOF OF STEAK",
+          images: [
+            {
+              url: ogImageUrl,
+              width: 1200,
+              height: 630,
+              alt: submission.name,
+            },
+          ],
+          type: "website",
+        },
+        twitter: {
+          card: "summary_large_image",
+          title,
+          description,
+          images: [ogImageUrl],
+        },
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching submission for metadata:', error);
+  }
+
+  // Fallback metadata if submission not found or error occurred
   return {
     title: "PROOF OF STEAK",
     description: "AI consensus-driven steak leaderboard for DevConnect 2025 Buenos Aires",
@@ -70,26 +112,12 @@ export async function generateMetadata({
       description: "AI consensus-driven steak leaderboard for DevConnect 2025 Buenos Aires",
       url: `${baseUrl}/s/${submissionId}`,
       siteName: "PROOF OF STEAK",
-      images: [
-        {
-          url: waitingImageUrl,
-          width: 1200,
-          height: 630,
-          alt: "PROOF OF STEAK",
-        },
-      ],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: "PROOF OF STEAK",
       description: "AI consensus-driven steak leaderboard for DevConnect 2025 Buenos Aires",
-      images: [
-        {
-          url: waitingImageUrl,
-          alt: "PROOF OF STEAK",
-        },
-      ],
     },
   };
 }
