@@ -3,7 +3,6 @@
 from genlayer import *
 
 import json
-import bisect
 
 # Category definitions with descriptions
 CATEGORIES = {
@@ -19,9 +18,19 @@ CATCH_ALL_CATEGORY = "easter_eggs"
 
 @allow_storage
 class AnalysisRecord:
+    consensus_output: str
+    caller_address: Address
+    defense: str
+    original_url: str
+    leaderboard_url: str
+    analysis_url: str
+    name: str
+    location: str
+    score: u32
+
     def __init__(self, consensus_output: str, caller_address: Address, defense: str = "",
                  original_url: str = "", leaderboard_url: str = "", analysis_url: str = "",
-                 name: str = "", location: str = ""):
+                 name: str = "", location: str = "", score: int = 0):
         self.consensus_output = consensus_output
         self.caller_address = caller_address
         self.defense = defense
@@ -30,6 +39,7 @@ class AnalysisRecord:
         self.analysis_url = analysis_url        # 1024px max for AI analysis
         self.name = name
         self.location = location
+        self.score = score
 
 class ImageAnalyzer(gl.Contract):
     # Single TreeMap with category names as keys
@@ -37,7 +47,9 @@ class ImageAnalyzer(gl.Contract):
 
     def __init__(self):
         # Initialize all categories with empty arrays
-        self.analyses_by_category = {category: [] for category in CATEGORIES}
+        self.analyses_by_category = TreeMap()
+        for category in CATEGORIES:
+            self.analyses_by_category[category] = []
 
     def _get_category_array(self, category: str) -> DynArray[AnalysisRecord]:
         """Get the appropriate storage array for a category"""
@@ -212,9 +224,6 @@ Return ONLY valid JSON:
 
         # Step 3: Store consensus result in category-specific array
         caller_address = gl.message.sender_address
-        record = AnalysisRecord(consensus_output, caller_address, defense,
-                               original_url, leaderboard_url, analysis_url,
-                               name, location)
 
         # Parse category and score from consensus output
         try:
@@ -226,27 +235,49 @@ Return ONLY valid JSON:
             if determined_category not in CATEGORIES:
                 determined_category = CATCH_ALL_CATEGORY
 
+            # Create record with parsed score
+            record = AnalysisRecord(consensus_output, caller_address, defense,
+                                   original_url, leaderboard_url, analysis_url,
+                                   name, location, score)
+
             # Insert sorted by score (descending order)
             category_array = self.analyses_by_category[determined_category]
 
-            # Convert to list, use bisect to find position, then rebuild DynArray
-            items = list(category_array)
-            # Use negative score for descending order
-            bisect.insort(items, (-score, record))
+            # Find the correct position to insert (descending order - highest score first)
+            insert_index = len(category_array)  # Default to end
+            if insert_index == 0:
+                 category_array.append(record)
+            else:
+                for i in range(len(category_array)):
+                    existing_record = category_array[i]
+                    existing_score = existing_record.score
+                    if score > existing_score:
+                        insert_index = i
+                        break
 
-            # Clear and rebuild the DynArray
-            category_array.clear()
-            for item in items:
-                category_array.append(item)
+                # Insert at the correct position
+                category_array.insert(insert_index, record)
 
         except (json.JSONDecodeError, KeyError):
             # If parsing fails, store in catch-all category with score 0
+            score = 0
+            record = AnalysisRecord(consensus_output, caller_address, defense,
+                                   original_url, leaderboard_url, analysis_url,
+                                   name, location, score)
+
             category_array = self.analyses_by_category[CATCH_ALL_CATEGORY]
-            items = list(category_array)
-            bisect.insort(items, (0, record))
-            category_array.clear()
-            for item in items:
-                category_array.append(item)
+
+            # Find the correct position to insert (descending order)
+            insert_index = len(category_array)  # Default to end (score 0 goes at end)
+            for i in range(len(category_array)):
+                existing_record = category_array[i]
+                existing_score = existing_record.score
+                if score > existing_score:
+                    insert_index = i
+                    break
+
+            # Insert at the correct position
+            category_array.insert(insert_index, record)
 
     @gl.public.view
     def get_analysis_by_category(self, category: str, start_index: int = 0, count: int = 10) -> dict:
@@ -266,11 +297,9 @@ Return ONLY valid JSON:
         end_index = min(start_index + count, total_count)
 
         # Convert requested slice to list of dicts
-        # Unpack (negative_score, record) tuples
         records = []
         for i in range(start_index, end_index):
-            neg_score, record = category_array[i]
-            score = -neg_score  # Convert back to positive score
+            record = category_array[i]
             rank = i + 1  # Global rank (1-indexed, position in sorted array)
 
             records.append({
@@ -282,7 +311,7 @@ Return ONLY valid JSON:
                 "analysis_url": record.analysis_url,
                 "name": record.name,
                 "location": record.location,
-                "score": score,
+                "score": record.score,
                 "rank": rank
             })
 
