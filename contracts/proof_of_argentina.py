@@ -1,6 +1,7 @@
 # v0.1.0
 # { "Depends": "py-genlayer:latest" }
 from genlayer import *
+from dataclasses import dataclass
 
 import json
 
@@ -17,37 +18,27 @@ CATEGORIES = {
 CATCH_ALL_CATEGORY = "easter_eggs"
 
 @allow_storage
+@dataclass
 class AnalysisRecord:
+    id: str
     consensus_output: str
     caller_address: Address
-    defense: str
-    original_url: str
-    leaderboard_url: str
-    analysis_url: str
-    name: str
-    location: str
-    score: u32
-
-    def __init__(self, consensus_output: str, caller_address: Address, defense: str = "",
-                 original_url: str = "", leaderboard_url: str = "", analysis_url: str = "",
-                 name: str = "", location: str = "", score: int = 0):
-        self.consensus_output = consensus_output
-        self.caller_address = caller_address
-        self.defense = defense
-        self.original_url = original_url        # Full-resolution original
-        self.leaderboard_url = leaderboard_url  # 1000x1000 square thumbnail
-        self.analysis_url = analysis_url        # 1024px max for AI analysis
-        self.name = name
-        self.location = location
-        self.score = score
+    defense: str = ""
+    original_url: str = ""        # Full-resolution original
+    leaderboard_url: str = ""     # 1000x1000 square thumbnail
+    analysis_url: str = ""        # 1024px max for AI analysis
+    name: str = ""
+    location: str = ""
+    score: u32 = 0
 
 class ImageAnalyzer(gl.Contract):
     # Single TreeMap with category names as keys
     analyses_by_category: TreeMap[str, DynArray[AnalysisRecord]]
+    # ID lookup map
+    analyses_by_id: TreeMap[str, AnalysisRecord]
 
     def __init__(self):
         # Initialize all categories with empty arrays
-        self.analyses_by_category = TreeMap()
         for category in CATEGORIES:
             self.analyses_by_category[category] = []
 
@@ -68,7 +59,7 @@ class ImageAnalyzer(gl.Contract):
             return 0
 
     @gl.public.write
-    def analyze_image(self, original_url: str, leaderboard_url: str, analysis_url: str,
+    def analyze_image(self, id: str, original_url: str, leaderboard_url: str, analysis_url: str,
                       defense: str = "", name: str = "", location: str = "") -> None:
         def non_det():
             try:
@@ -225,6 +216,9 @@ Return ONLY valid JSON:
         # Step 3: Store consensus result in category-specific array
         caller_address = gl.message.sender_address
 
+        # Use the ID provided by the caller (generated in frontend)
+        record_id = id
+
         # Parse category and score from consensus output
         try:
             consensus_json = json.loads(consensus_output)
@@ -236,9 +230,12 @@ Return ONLY valid JSON:
                 determined_category = CATCH_ALL_CATEGORY
 
             # Create record with parsed score
-            record = AnalysisRecord(consensus_output, caller_address, defense,
+            record = AnalysisRecord(record_id, consensus_output, caller_address, defense,
                                    original_url, leaderboard_url, analysis_url,
                                    name, location, score)
+
+            # Store in ID lookup map
+            self.analyses_by_id[record_id] = record
 
             # Insert sorted by score (descending order)
             category_array = self.analyses_by_category[determined_category]
@@ -262,9 +259,12 @@ Return ONLY valid JSON:
         except (json.JSONDecodeError, KeyError):
             # If parsing fails, store in catch-all category with score 0
             score = 0
-            record = AnalysisRecord(consensus_output, caller_address, defense,
+            record = AnalysisRecord(record_id, consensus_output, caller_address, defense,
                                    original_url, leaderboard_url, analysis_url,
                                    name, location, score)
+
+            # Store in ID lookup map
+            self.analyses_by_id[record_id] = record
 
             category_array = self.analyses_by_category[CATCH_ALL_CATEGORY]
 
@@ -308,6 +308,7 @@ Return ONLY valid JSON:
             rank = i + 1  # Global rank (1-indexed, position in sorted array)
 
             records.append({
+                "id": record.id,
                 "consensus_output": record.consensus_output,
                 "caller_address": record.caller_address.as_hex,
                 "defense": record.defense,
@@ -326,4 +327,36 @@ Return ONLY valid JSON:
             "start_index": start_index,
             "returned_count": len(records),
             "has_more": end_index < total_count
+        }
+
+    @gl.public.view
+    def get_analysis_by_id(self, category: str, id: str) -> dict:
+        """Get a single analysis record by its ID"""
+        # Look up the record in the ID map
+        if id not in self.analyses_by_id:
+            return {}
+
+        record = self.analyses_by_id[id]
+
+        # Find the rank by looking up position in category array
+        category_array = self._get_category_array(category)
+        rank = None
+        for i in range(len(category_array)):
+            if category_array[i].id == id:
+                rank = i + 1
+                break
+
+        # Return the record details
+        return {
+            "id": record.id,
+            "consensus_output": record.consensus_output,
+            "caller_address": record.caller_address.as_hex,
+            "defense": record.defense,
+            "original_url": record.original_url,
+            "leaderboard_url": record.leaderboard_url,
+            "analysis_url": record.analysis_url,
+            "name": record.name,
+            "location": record.location,
+            "score": record.score,
+            "rank": rank if rank is not None else 0
         }

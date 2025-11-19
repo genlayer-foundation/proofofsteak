@@ -8,39 +8,48 @@ import { waitForTransactionConfirmation } from "@/lib/genlayer/genlayer.js";
 
 interface SubmissionWaitingProps {
   imageUrl?: string;
-  submissionId?: string;
   transactionHash?: string;
+  walletAddress?: string; // Keep for backward compatibility but not used
 }
 
-export function SubmissionWaiting({ imageUrl, submissionId, transactionHash }: SubmissionWaitingProps) {
+export function SubmissionWaiting({ imageUrl, transactionHash }: SubmissionWaitingProps) {
   const router = useRouter();
   // Always use an image - prefer provided imageUrl, fallback to default hero image
   const backgroundImage = imageUrl || "/hero-steak-hd.jpg";
 
-  // Wait for transaction confirmation
+  // Wait for transaction confirmation and reload the page
   useEffect(() => {
-    if (!transactionHash || !submissionId) return;
+    if (!transactionHash) return;
 
     const waitForConfirmation = async () => {
       try {
         console.log('Waiting for transaction confirmation:', transactionHash);
         const result = await waitForTransactionConfirmation(transactionHash);
 
-        if (result.success) {
-          console.log('Transaction confirmed! Redirecting to submission:', submissionId);
-          router.push(`/submission/${submissionId}`);
+        console.log('Transaction confirmation result:', {
+          success: result.success,
+          receipt: result.receipt,
+          hasReceipt: !!result.receipt,
+          receiptStatus: result.receipt?.status,
+          receiptKeys: result.receipt ? Object.keys(result.receipt) : []
+        });
+
+        if (result.success && result.receipt) {
+          console.log('Transaction confirmed! Reloading page to show submission...');
+          // Reload the current page to fetch the now-available submission data
+          router.refresh();
         } else {
-          console.error('Transaction failed:', result.receipt);
-          // Could redirect to an error page or show error state
+          console.error('Transaction failed or status unclear');
+          router.push('/');
         }
       } catch (error) {
         console.error('Failed to wait for transaction confirmation:', error);
-        // Handle timeout or other errors
+        router.push('/');
       }
     };
 
     waitForConfirmation();
-  }, [transactionHash, submissionId, router]);
+  }, [transactionHash, router]);
 
   return (
     <div className="h-full bg-black flex flex-col relative overflow-hidden">
@@ -98,18 +107,13 @@ export function SubmissionWaiting({ imageUrl, submissionId, transactionHash }: S
 
           {/* Subtitle */}
           <p className="text-lg md:text-xl text-white/60 mb-8 font-medium">
-            {submissionId
+            {transactionHash
               ? "Waiting for blockchain confirmation..."
               : "Our AI consensus is checking the doneness"
             }
           </p>
 
-          {/* Submission and Transaction Info */}
-          {submissionId && (
-            <p className="text-sm text-white/40 mb-2 font-mono">
-              ID: {submissionId}
-            </p>
-          )}
+          {/* Transaction Info */}
           {transactionHash && (
             <p className="text-sm text-white/40 mb-8 font-mono">
               Transaction: {transactionHash.slice(0, 10)}...{transactionHash.slice(-6)}

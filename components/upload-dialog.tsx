@@ -87,6 +87,9 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
     setIsSubmitting(true)
 
     try {
+      // Generate a unique ID for this submission (UUID v4)
+      const submissionId = crypto.randomUUID()
+
       // Create FormData to send to API
       const formData = new FormData()
       formData.append('image', data.image[0])
@@ -96,6 +99,7 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
 
       // Log submission details
       console.log('=== UPLOAD SUBMISSION ===')
+      console.log('Submission ID:', submissionId)
       console.log('User:', user?.wallet?.address || user?.email?.address)
       console.log('Name:', data.name || '(not provided)')
       console.log('Category:', categoryTheme.title)
@@ -130,11 +134,10 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
         throw new Error('Wallet address not found')
       }
 
-      // Generate unique ID for this submission
-      const submissionId = crypto.randomUUID()
-
       // Start transaction but don't wait for receipt
+      // Pass the generated ID to the contract
       const { hash } = await analyzeImage(
+        submissionId,
         result.data.originalUrl,
         result.data.leaderboardUrl,
         result.data.analysisUrl,
@@ -145,7 +148,7 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
         false // Don't wait for receipt
       )
 
-      console.log('Smart contract transaction started:', { hash, submissionId })
+      console.log('Smart contract transaction started:', { hash, submissionId, userAddress })
 
       const imageUrl = encodeURIComponent(result.data.originalUrl)
 
@@ -154,13 +157,14 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
       setImagePreview(null)
       setOpen(false)
 
-      // Show success and redirect to waiting page with submission ID
+      // Show success toast
       toast.success('Submitted for AI analysis!', {
         description: 'Your submission is being analyzed by our AI jury.',
         duration: 4000,
       })
 
-      router.push(`/submission/waiting?id=${submissionId}&hash=${hash}&image=${imageUrl}`)
+      // Navigate directly to the submission detail page with the known ID
+      router.push(`/submission/${submissionId}`)
     } catch (error) {
       console.error('Upload error:', error)
 

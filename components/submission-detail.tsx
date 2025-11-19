@@ -36,7 +36,7 @@ export function SubmissionDetail({
   }, []);
 
   const handleShare = () => {
-    const shareText = `${submission.name} - ${categoryTitle} submission from ${submission.location} 🥩\n\n${submission.votes} votes\n\nView on PROOF OF STEAK`;
+    const shareText = `${submission.name} - ${categoryTitle} from ${submission.location} 🥩\n\n${submission.votes} votes\n\nView on PROOF OF STEAK`;
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       shareText
     )}&url=${encodeURIComponent(currentUrl)}`;
@@ -134,220 +134,253 @@ export function SubmissionDetail({
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Hero Image Section - Full Screen Focus */}
-      <section className="relative h-screen w-full overflow-hidden">
-        <img
-          src={submission.image || "/placeholder.svg"}
-          alt={submission.name}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30" />
+      {/* Top Action Bar - Fixed */}
+      <div className="fixed top-8 left-0 right-0 z-50 px-4 md:px-8 flex items-center justify-between">
+        {/* Back Button */}
+        <Link
+          href="/"
+          className="group flex items-center gap-3 px-6 py-3 bg-black/80 backdrop-blur-sm rounded-lg border transition-all duration-300 hover:scale-105"
+          style={{
+            borderColor: borderColor,
+            boxShadow: `0 0 20px ${glowColor}`,
+          }}
+        >
+          <ArrowLeft
+            className={`w-5 h-5 ${textColor} transition-transform group-hover:-translate-x-1`}
+          />
+          <span className="text-white font-bold tracking-wide">BACK</span>
+        </Link>
 
-        {/* Top Action Bar */}
-        <div className="absolute top-8 left-0 right-0 z-20 px-4 md:px-8 flex items-center justify-between">
-          {/* Back Button */}
-          <Link
-            href="/"
-            className="group flex items-center gap-3 px-6 py-3 bg-black/80 backdrop-blur-sm rounded-lg border transition-all duration-300 hover:scale-105"
-            style={{
+      </div>
+
+      {/* Main Content - Side by Side Layout */}
+      <section className="pt-24 pb-12 px-4 md:px-8 max-w-[1800px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+          {/* Left Column - Image */}
+          <div className="w-full lg:sticky lg:top-24 space-y-4">
+            <div className="w-full border" style={{
               borderColor: borderColor,
-              boxShadow: `0 0 20px ${glowColor}`,
-            }}
-          >
-            <ArrowLeft
-              className={`w-5 h-5 ${textColor} transition-transform group-hover:-translate-x-1`}
-            />
-            <span className="text-white font-bold tracking-wide">BACK</span>
-          </Link>
-
-          {/* Share Button */}
-          {showShareButton && (
-            <button
-              onClick={handleShare}
-              className="group flex items-center justify-center w-12 h-12 bg-black/80 backdrop-blur-sm rounded-lg border transition-all duration-300 hover:scale-110"
-              style={{
-                borderColor: borderColor,
-                boxShadow: `0 0 20px ${glowColor}`,
-              }}
-              aria-label="Share on X"
-            >
-              <XLogo
-                className={`w-6 h-6 ${textColor} transition-transform group-hover:scale-110`}
+              boxShadow: `0 0 30px ${glowColor}`,
+            }}>
+              <img
+                src={submission.originalImage || submission._original?.original_url || submission.image || "/placeholder.svg"}
+                alt={submission.name}
+                className="w-full h-auto object-contain"
               />
-            </button>
-          )}
-        </div>
-
-        {/* Title Overlay - Bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 pb-16 md:pb-20">
-          <div className="max-w-5xl">
-            <h1
-              className={`text-6xl md:text-8xl lg:text-9xl font-black mb-6 leading-tight bg-gradient-to-r ${getHeadingGradient()}`}
-              style={{
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              {submission.name}
-            </h1>
-            <div className="flex items-center gap-6 flex-wrap">
-              <p className="text-2xl md:text-3xl text-white/90 font-bold">
-                {categoryTitle} {theme.emoji}
-              </p>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl md:text-3xl">{theme.emoji}</span>
-                <span className="text-2xl md:text-3xl font-black text-white">
-                  {submission.votes}
-                </span>
-                <span className="text-lg md:text-xl text-white/70">votes</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Details Section */}
-      <section className="py-16 md:py-24 px-4 md:px-8 max-w-4xl mx-auto">
-        {/* Decorative divider */}
-        <div className="flex items-center justify-center gap-4 mb-12">
-          <div
-            className="h-0.5 w-16"
-            style={getDividerGradientStyle("right")}
-          ></div>
-          <div className="w-2 h-2 rounded-full" style={getDotStyle()}></div>
-          <div
-            className="h-0.5 w-16"
-            style={getDividerGradientStyle("left")}
-          ></div>
-        </div>
-
-        {/* Submission Details */}
-        <div className="space-y-8">
-          {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Location */}
-            <div
-              className="p-6 rounded-lg border bg-black/40 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
-              style={{
-                borderColor: borderColor,
-                boxShadow: `0 0 20px ${glowColor}`,
-              }}
-            >
-              <div className="flex items-start gap-4">
-                <span className="text-3xl">📍</span>
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-2">
-                    Location
-                  </p>
-                  <p className="text-lg font-bold text-white">
-                    {submission.location}
-                  </p>
-                </div>
-              </div>
             </div>
 
-            {/* Submitted By */}
-            <div
-              className="p-6 rounded-lg border bg-black/40 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
-              style={{
-                borderColor: borderColor,
-                boxShadow: `0 0 20px ${glowColor}`,
-              }}
-            >
-              <div className="flex items-start gap-4">
-                <span className="text-3xl">👤</span>
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-2">
-                    Submitted by
-                  </p>
-                  <p className={`text-lg font-bold ${textColor}`}>
-                    {submission.submittedBy}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Date */}
-            <div
-              className="p-6 rounded-lg border bg-black/40 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
-              style={{
-                borderColor: borderColor,
-                boxShadow: `0 0 20px ${glowColor}`,
-              }}
-            >
-              <div className="flex items-start gap-4">
-                <span className="text-3xl">📅</span>
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-2">
-                    Date
-                  </p>
-                  <p className="text-lg font-bold text-white">
-                    {new Date(submission.timestamp).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      }
-                    )}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Category */}
-            <div
-              className="p-6 rounded-lg border bg-black/40 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
-              style={{
-                borderColor: borderColor,
-                boxShadow: `0 0 20px ${glowColor}`,
-              }}
-            >
-              <div className="flex items-start gap-4">
-                <span className="text-3xl">{theme.emoji}</span>
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-2">
-                    Category
-                  </p>
-                  <p className="text-lg font-bold text-white">
-                    {categoryTitle}
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* Share Button */}
+            {showShareButton && (
+              <button
+                onClick={handleShare}
+                className="group w-full flex items-center justify-center gap-3 px-6 py-4 bg-black/80 backdrop-blur-sm rounded-lg border transition-all duration-300 hover:scale-105"
+                style={{
+                  borderColor: borderColor,
+                  boxShadow: `0 0 20px ${glowColor}`,
+                }}
+              >
+                <XLogo
+                  className={`w-5 h-5 ${textColor} transition-transform group-hover:scale-110`}
+                />
+                <span className="text-white font-bold tracking-wide">Share on X</span>
+              </button>
+            )}
           </div>
 
-          {/* Description */}
-          {submission.description && (
-            <div
-              className="p-8 rounded-lg border bg-black/40 backdrop-blur-sm"
-              style={{
-                borderColor: borderColor,
-                boxShadow: `0 0 20px ${glowColor}`,
-              }}
-            >
-              <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-4">
-                Description
-              </p>
-              <p className="text-lg text-white/90 leading-relaxed">
-                {submission.description}
-              </p>
+          {/* Right Column - Content */}
+          <div className="w-full space-y-8">
+            {/* Title */}
+            <div>
+              <h1
+                className={`text-4xl md:text-6xl lg:text-7xl font-black mb-4 leading-tight bg-gradient-to-r ${getHeadingGradient()}`}
+                style={{
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                {submission.name}
+              </h1>
+              <div className="flex items-center gap-6 flex-wrap">
+                <p className="text-xl md:text-2xl text-white/90 font-bold">
+                  {categoryTitle}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl md:text-2xl">{theme.emoji}</span>
+                  <span className="text-xl md:text-2xl font-black text-white">
+                    {submission.votes}
+                  </span>
+                  <span className="text-base md:text-lg text-white/70">votes</span>
+                </div>
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Decorative divider */}
-        <div className="flex items-center justify-center gap-4 mt-16">
-          <div
-            className="h-0.5 w-16"
-            style={getDividerGradientStyle("right")}
-          ></div>
-          <div className="w-2 h-2 rounded-full" style={getDotStyle()}></div>
-          <div
-            className="h-0.5 w-16"
-            style={getDividerGradientStyle("left")}
-          ></div>
+            {/* AI Consensus Section */}
+            {submission._consensus && (
+              <div>
+                <h2 className="text-2xl md:text-3xl font-black text-white mb-4">
+                  AI JURY&apos;S VERDICT
+                </h2>
+
+                {/* AI Score Badge */}
+                <div className="flex justify-start mb-6">
+                  <div
+                    className="relative px-8 py-6 rounded-xl border-2 bg-black/60 backdrop-blur-sm"
+                    style={{
+                      borderColor: borderColor,
+                      boxShadow: `0 0 30px ${glowColor}`,
+                    }}
+                  >
+                    <div className="text-center">
+                      <div className={`text-5xl md:text-6xl font-black ${textColor} mb-1`}>
+                        {submission._consensus.score || submission.score || 0}
+                      </div>
+                      <div className="text-base text-white/60 font-bold">
+                        OUT OF 1000
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI Reasoning */}
+                {submission.description && (
+                  <div
+                    className="p-6 rounded-lg border bg-black/40 backdrop-blur-sm mb-8"
+                    style={{
+                      borderColor: borderColor,
+                      boxShadow: `0 0 20px ${glowColor}`,
+                    }}
+                  >
+                    <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-3">
+                      AI REASONING
+                    </p>
+                    <p className="text-base text-white/90 leading-relaxed">
+                      {submission.description}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Details Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Location */}
+              {submission._original?.name && (
+                <div
+                  className="p-4 rounded-lg border bg-black/40 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
+                  style={{
+                    borderColor: borderColor,
+                    boxShadow: `0 0 20px ${glowColor}`,
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">📍</span>
+                    <div>
+                      <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-1">
+                        Location
+                      </p>
+                      <p className="text-base font-bold text-white">
+                        {submission._original.name}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Submitted By */}
+              <div
+                className="p-4 rounded-lg border bg-black/40 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
+                style={{
+                  borderColor: borderColor,
+                  boxShadow: `0 0 20px ${glowColor}`,
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">👤</span>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-1">
+                      Submitted by
+                    </p>
+                    <p className={`text-base font-bold ${textColor}`}>
+                      {submission.submittedBy}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Date */}
+              <div
+                className="p-4 rounded-lg border bg-black/40 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
+                style={{
+                  borderColor: borderColor,
+                  boxShadow: `0 0 20px ${glowColor}`,
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">📅</span>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-1">
+                      Date
+                    </p>
+                    <p className="text-base font-bold text-white">
+                      {new Date(submission.timestamp).toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        }
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Category */}
+              <div
+                className="p-4 rounded-lg border bg-black/40 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
+                style={{
+                  borderColor: borderColor,
+                  boxShadow: `0 0 20px ${glowColor}`,
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{theme.emoji}</span>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-1">
+                      Category
+                    </p>
+                    <p className="text-base font-bold text-white">
+                      {categoryTitle}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Your Pitch - Spans 2 columns */}
+              {submission._original?.defense && (
+                <div
+                  className="p-4 rounded-lg border bg-black/40 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] sm:col-span-2"
+                  style={{
+                    borderColor: borderColor,
+                    boxShadow: `0 0 20px ${glowColor}`,
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">💬</span>
+                    <div>
+                      <p className="text-xs uppercase tracking-wider text-white/60 font-bold mb-1">
+                        Your Pitch
+                      </p>
+                      <p className="text-base font-bold text-white">
+                        {submission._original.defense}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </section>
     </div>

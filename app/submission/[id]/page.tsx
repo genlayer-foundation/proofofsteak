@@ -12,6 +12,8 @@ interface SubmissionPageProps {
   }>;
   searchParams: Promise<{
     image?: string;
+    hash?: string;
+    wallet?: string;
   }>;
 }
 
@@ -110,12 +112,12 @@ export async function generateMetadata({
     title: `${submission.name} | PROOF OF STEAK`,
     description:
       submission.description ||
-      `${submission.name} - ${categoryTitle} submission from ${submission.location}. ${submission.votes} votes.`,
+      `${submission.name} - ${categoryTitle} from ${submission.location}. ${submission.votes} votes.`,
     openGraph: {
       title: `${submission.name} | PROOF OF STEAK`,
       description:
         submission.description ||
-        `${submission.name} - ${categoryTitle} submission from ${submission.location}`,
+        `${submission.name} - ${categoryTitle} from ${submission.location}`,
       url: `${baseUrl}/submission/${submissionId}`,
       siteName: "PROOF OF STEAK",
       images: [
@@ -133,7 +135,7 @@ export async function generateMetadata({
       title: `${submission.name} | PROOF OF STEAK`,
       description:
         submission.description ||
-        `${submission.name} - ${categoryTitle} submission from ${submission.location}`,
+        `${submission.name} - ${categoryTitle} from ${submission.location}`,
       images: [
         {
           url: imageUrl,
@@ -152,22 +154,22 @@ export default async function SubmissionPage({
   const resolvedSearchParams = await searchParams;
   const submissionId = resolvedParams.id;
   const imageUrl = resolvedSearchParams.image;
-  const waitingForId = resolvedSearchParams.id; // ID we're waiting for
-  const transactionHash = resolvedSearchParams.hash; // Transaction hash for waiting
+  const transactionHash = resolvedSearchParams.hash;
+  const walletAddress = resolvedSearchParams.wallet;
 
   // If it's a waiting page, show waiting with polling
-  if (submissionId === 'waiting' && waitingForId) {
+  if (submissionId === 'waiting' && transactionHash && walletAddress) {
     return (
       <main className="h-screen bg-black flex flex-col">
         <div className="flex-1">
-          <SubmissionWaiting imageUrl={imageUrl} submissionId={waitingForId} transactionHash={transactionHash} />
+          <SubmissionWaiting imageUrl={imageUrl} transactionHash={transactionHash} walletAddress={walletAddress} />
         </div>
         <Footer />
       </main>
     );
   }
 
-  // If it's a waiting page without ID, show basic waiting
+  // If it's a waiting page without proper params, show basic waiting
   if (submissionId === 'waiting') {
     return (
       <main className="h-screen bg-black flex flex-col">
@@ -202,12 +204,28 @@ export default async function SubmissionPage({
     console.error('Failed to load submission:', error);
   }
 
-  // If submission not found
+  // If submission not found, check if we have transaction details (pending submission)
+  if (transactionHash && walletAddress) {
+    return (
+      <main className="h-screen bg-black flex flex-col">
+        <div className="flex-1">
+          <SubmissionWaiting
+            imageUrl={imageUrl}
+            transactionHash={transactionHash}
+            walletAddress={walletAddress}
+          />
+        </div>
+        <Footer />
+      </main>
+    );
+  }
+
+  // If submission not found and no transaction info
   return (
     <main className="min-h-screen bg-black flex items-center justify-center">
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-white mb-4">Submission Not Found</h1>
-        <p className="text-white/70">The submission you're looking for doesn't exist.</p>
+        <h1 className="text-4xl font-bold text-white mb-4">Not Found</h1>
+        <p className="text-white/70">The page you're looking for doesn't exist.</p>
       </div>
     </main>
   );
