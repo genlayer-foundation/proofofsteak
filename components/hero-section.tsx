@@ -13,19 +13,24 @@ export function HeroSection() {
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 py-20">
         <h1
           className="text-[18vw] sm:text-[14vw] md:text-[16vw] lg:text-[18vw] xl:text-[20vw] font-black leading-[0.9] text-center tracking-tighter uppercase max-w-full"
-          style={{
-            backgroundImage: 'url(/hero-steak-hd.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
         >
-          <span className="block sm:inline">PROOF </span>
-          <span className="block sm:inline">OF </span>
-          <span className="block sm:inline">STEAK</span>
+          <span
+            className="block"
+            style={{
+              backgroundImage: 'url(/hero-steak-hd.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              backgroundAttachment: 'fixed',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            PROOF OF<br className="sm:hidden" />
+            <span className="hidden sm:inline"> </span>
+            STEAK
+          </span>
         </h1>
         <p className="text-center text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mt-6 md:mt-8 text-[oklch(0.85_0.08_45)] tracking-widest">
           DEVCONNECT 2025 · BUENOS AIRES

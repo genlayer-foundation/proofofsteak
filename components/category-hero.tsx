@@ -32,7 +32,7 @@ export function CategoryHero({ title, subtitle, backgroundImage }: CategoryHeroP
   }
 
   // Fit-to-width component with resize observer
-  function FitToWidthLine({ text }: { text: string }) {
+  function FitToWidthLine({ text, applyBackground = true }: { text: string; applyBackground?: boolean }) {
     const containerRef = useRef<HTMLDivElement>(null)
     const textRef = useRef<HTMLDivElement>(null)
     const [fontSize, setFontSize] = useState(100)
@@ -82,7 +82,7 @@ export function CategoryHero({ title, subtitle, backgroundImage }: CategoryHeroP
           ref={textRef}
           className="font-black tracking-tighter uppercase whitespace-nowrap"
           style={{
-            ...textStyle,
+            ...(applyBackground ? textStyle : {}),
             fontSize: `${fontSize}px`,
             letterSpacing: '-0.05em',
             lineHeight: '1',
@@ -100,10 +100,14 @@ export function CategoryHero({ title, subtitle, backgroundImage }: CategoryHeroP
   return (
     <section className="relative h-screen w-full overflow-hidden flex items-center justify-center bg-black">
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 py-20">
-        {/* Mobile: Two-line fit-to-width layout */}
-        <h1 className="sm:hidden w-full flex flex-col gap-2">
-          {renderFitToWidthLine(proofOf)}
-          {renderFitToWidthLine(categoryWord)}
+        {/* Mobile: Two-line fit-to-width layout with shared background */}
+        <h1 className="sm:hidden w-full flex flex-col gap-2" style={{
+          ...textStyle,
+          backgroundSize: 'contain',
+          backgroundAttachment: 'fixed',
+        }}>
+          <FitToWidthLine text={proofOf} applyBackground={false} />
+          <FitToWidthLine text={categoryWord} applyBackground={false} />
         </h1>
 
         {/* Desktop: Single line with vw sizing */}
