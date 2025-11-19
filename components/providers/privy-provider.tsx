@@ -3,8 +3,7 @@
 import { PrivyProvider } from '@privy-io/react-auth'
 import { WagmiProvider } from '@privy-io/wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { config } from '@/lib/wagmi-config'
-import { genlayerStudio } from '@/lib/wagmi-config'
+import { config, genlayerStudio } from '@/lib/wagmi-config'
 
 const queryClient = new QueryClient()
 
