@@ -172,11 +172,10 @@ export function CategoryGrid({ submissions, theme, cta, onLoadMore, hasMore, isL
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
         {submissions.map((item, index) => {
           const imageUrl = item.image || "/placeholder.svg";
-          const encodedImageUrl = encodeURIComponent(imageUrl);
           return (
           <Link
             key={item.id}
-            href={`/submission/${item.id}?image=${encodedImageUrl}`}
+            href={`/s/${item.id}`}
             className={`relative aspect-square overflow-hidden group cursor-pointer border border-border/30 bg-black transition-all duration-500 ${getBorderColor()} ${getGlowColor()}`}
             onMouseEnter={() => setHoveredId(item.id)}
             onMouseLeave={() => setHoveredId(null)}

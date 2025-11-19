@@ -44,7 +44,7 @@ category: string, startIndex: number, count: number
 
 #### `get_analysis_by_id`
 **Purpose**: Fetch single submission by ID
-**Used in**: Submission detail pages (`app/submission/[id]/page.tsx`)
+**Used in**: Submission detail pages (`app/s/[id]/page.tsx`)
 **Parameters**:
 ```
 category: string, id: string

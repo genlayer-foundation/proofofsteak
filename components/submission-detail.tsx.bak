@@ -47,22 +47,8 @@ export function SubmissionDetail({
     setCurrentUrl(window.location.origin + pathname);
   }, [pathname, searchParams, router]);
 
-  const getCategoryShareText = (category: string, score: number): string => {
-    const shareTexts: Record<string, string> = {
-      "Steak": `Proof of Steak > Proof of Stake 🥩\n\nAI jury score: ${score}/1000\n`,
-      "Veggie": `Carbon-negative and AI-approved 🥦\n\nScore: ${score}/1000\n`,
-      "Mate": `AI jury passed the gourd 🧉\n\nScore: ${score}/1000\n`,
-      "Gaucho": `Gaucho approved by the bots 🤠\n\nScore: ${score}/1000\n`,
-      "Futbol": `GOOOOOL! AI jury validates ⚽\n\nScore: ${score}/1000\n`,
-      "Easter Egg": `AI jury cracked the code 🥚\n\nScore: ${score}/1000\n`,
-    };
-
-    return shareTexts[category] || `AI jury approved 🥩\n\nScore: ${score}/1000\n`;
-  };
-
   const handleShare = () => {
-    const score = submission._consensus?.score || submission.score || submission.votes || 0;
-    const shareText = getCategoryShareText(categoryTitle, score);
+    const shareText = `${submission.name} - ${categoryTitle} from ${submission.location} 🥩\n\n${submission.votes} votes\n\nView on PROOF OF STEAK`;
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       shareText
     )}&url=${encodeURIComponent(currentUrl)}`;

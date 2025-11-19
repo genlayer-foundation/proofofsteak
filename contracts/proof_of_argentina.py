@@ -330,25 +330,32 @@ Return ONLY valid JSON:
         }
 
     @gl.public.view
-    def get_analysis_by_id(self, category: str, id: str) -> dict:
-        """Get a single analysis record by its ID"""
+    def get_analysis_by_id(self, id: str) -> dict:
+        """Get a single analysis record by its ID, searching all categories"""
         # Look up the record in the ID map
         if id not in self.analyses_by_id:
             return {}
 
         record = self.analyses_by_id[id]
 
-        # Find the rank by looking up position in category array
-        category_array = self._get_category_array(category)
+        # Find which category this record belongs to and its rank
+        found_category = None
         rank = None
-        for i in range(len(category_array)):
-            if category_array[i].id == id:
-                rank = i + 1
+
+        for category in CATEGORIES.keys():
+            category_array = self._get_category_array(category)
+            for i in range(len(category_array)):
+                if category_array[i].id == id:
+                    found_category = category
+                    rank = i + 1
+                    break
+            if found_category:
                 break
 
-        # Return the record details
+        # Return the record details with category
         return {
             "id": record.id,
+            "category": found_category if found_category else "easter_eggs",
             "consensus_output": record.consensus_output,
             "caller_address": record.caller_address.as_hex,
             "defense": record.defense,

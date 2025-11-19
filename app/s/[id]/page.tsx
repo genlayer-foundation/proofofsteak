@@ -4,7 +4,7 @@ import { SubmissionWaiting } from "@/components/submission-waiting";
 import { Footer } from "@/components/footer";
 import { findSubmissionById } from "@/lib/submission-utils";
 import { getAnalysisById } from "@/lib/genlayer/genlayer.js";
-import { steakCategory } from "@/lib/category-data";
+import { getCategoryTheme } from "@/lib/category-data";
 
 interface SubmissionPageProps {
   params: Promise<{
@@ -36,7 +36,7 @@ export async function generateMetadata({
       openGraph: {
         title: "PROOF OF STEAK",
         description: "AI consensus making sure doneness of steak",
-        url: `${baseUrl}/submission/${resolvedParams.id}`,
+        url: `${baseUrl}/s/${resolvedParams.id}`,
         siteName: "PROOF OF STEAK",
         images: [
           {
@@ -77,7 +77,7 @@ export async function generateMetadata({
       openGraph: {
         title: "PROOF OF STEAK",
         description: "AI consensus making sure doneness of steak",
-        url: `${baseUrl}/submission/${submissionId}`,
+        url: `${baseUrl}/s/${submissionId}`,
         siteName: "PROOF OF STEAK",
         images: [
           {
@@ -118,7 +118,7 @@ export async function generateMetadata({
       description:
         submission.description ||
         `${submission.name} - ${categoryTitle} from ${submission.location}`,
-      url: `${baseUrl}/submission/${submissionId}`,
+      url: `${baseUrl}/s/${submissionId}`,
       siteName: "PROOF OF STEAK",
       images: [
         {
@@ -183,17 +183,18 @@ export default async function SubmissionPage({
 
   // For GenLayer submissions, use the actual ID to fetch details
   try {
-    // TODO: Determine category from URL path - for now defaulting to 'steak'
-    const category = 'steak';
-    const submission = await getAnalysisById(category, submissionId);
+    const submission = await getAnalysisById(submissionId);
 
     if (submission) {
+      // Get the correct theme based on the category returned from the contract
+      const categoryData = getCategoryTheme(submission.category);
+
       return (
         <main className="min-h-screen bg-black">
           <SubmissionDetail
             submission={submission}
-            theme={steakCategory.theme}
-            categoryTitle={steakCategory.theme.title}
+            theme={categoryData.theme}
+            categoryTitle={categoryData.theme.title}
             showShareButton={true}
           />
           <Footer />

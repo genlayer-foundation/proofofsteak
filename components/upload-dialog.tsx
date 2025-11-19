@@ -87,8 +87,11 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
     setIsSubmitting(true)
 
     try {
-      // Generate a unique ID for this submission (UUID v4)
-      const submissionId = crypto.randomUUID()
+      // Generate a unique ID for this submission (8 alphanumeric characters)
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+      const submissionId = Array.from(crypto.getRandomValues(new Uint8Array(8)))
+        .map(b => chars[b % chars.length])
+        .join('')
 
       // Create FormData to send to API
       const formData = new FormData()
@@ -134,7 +137,7 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
         throw new Error('Wallet address not found')
       }
 
-      // Start transaction but don't wait for receipt
+      // Submit to contract WITHOUT waiting for confirmation
       // Pass the generated ID to the contract
       const { hash } = await analyzeImage(
         submissionId,
@@ -145,26 +148,26 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
         data.name || '',
         data.location,
         userAddress,
-        false // Don't wait for receipt
+        false // Don't wait - navigate to waiting page immediately
       )
 
-      console.log('Smart contract transaction started:', { hash, submissionId, userAddress })
+      console.log('Smart contract transaction submitted:', { hash, submissionId, userAddress })
 
       const imageUrl = encodeURIComponent(result.data.originalUrl)
 
-      // Reset form and close dialog immediately
+      // Reset form and close dialog
       form.reset()
       setImagePreview(null)
       setOpen(false)
 
       // Show success toast
-      toast.success('Submitted for AI analysis!', {
-        description: 'Your submission is being analyzed by our AI jury.',
+      toast.success('Transaction submitted!', {
+        description: 'Waiting for blockchain confirmation...',
         duration: 4000,
       })
 
-      // Navigate directly to the submission detail page with the known ID
-      router.push(`/submission/${submissionId}`)
+      // Navigate to the submission page with waiting state (will show waiting animation while polling)
+      router.push(`/s/${submissionId}?hash=${hash}&image=${imageUrl}&wallet=${userAddress}`)
     } catch (error) {
       console.error('Upload error:', error)
 
@@ -447,9 +450,30 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
                   }}
                 >
                   {isSubmitting ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <UploadIcon className="w-5 h-5 animate-pulse" />
-                      Submitting...
+                    <span className="flex items-center justify-center gap-3">
+                      <svg
+                        className="w-5 h-5 animate-spin"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span className="animate-pulse">
+                        Submitting to blockchain...
+                      </span>
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-2">

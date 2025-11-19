@@ -361,3 +361,17 @@ export const easterEggsCategory: CategoryConfig = {
     gradientTo: 'to-amber-400',
   },
 }
+
+// Category theme mapper - maps category IDs to their theme objects
+export function getCategoryTheme(categoryId: string) {
+  const categoryMap: Record<string, typeof steakCategory> = {
+    'steak': steakCategory,
+    'mate': mateCategory,
+    'veggies': veggiesCategory,
+    'gaucho': gauchoCategory,
+    'futbol': futbolCategory,
+    'easter_eggs': easterEggsCategory,
+  }
+
+  return categoryMap[categoryId] || steakCategory // Default to steak if unknown
+}
