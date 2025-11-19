@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Wallet, Upload as UploadIcon, Image as ImageIcon } from 'lucide-react'
-import { usePrivy } from '@privy-io/react-auth'
+import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -28,6 +28,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { CategoryTheme } from './category-grid'
 import { analyzeImage } from '@/lib/genlayer/genlayer.js'
+import { genlayerStudio } from '@/lib/wagmi-config'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
@@ -58,6 +59,7 @@ interface UploadDialogProps {
 
 export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
   const { login, authenticated, user } = usePrivy()
+  const { wallets } = useWallets()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -127,10 +129,36 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
         throw new Error('Wallet address not found')
       }
 
+      // Get the wallet provider from Privy
+      const wallet = wallets.find(w => w.address.toLowerCase() === userAddress.toLowerCase())
+      if (!wallet) {
+        throw new Error('Wallet not found in connected wallets')
+      }
+
+      const provider = await wallet.getEthereumProvider()
+      if (!provider) {
+        throw new Error('Wallet provider not available')
+      }
+
+      // Switch to GenLayer Studio network before transaction
+      console.log('Switching to GenLayer Studio network...')
+      try {
+        await wallet.switchChain(genlayerStudio.id)
+        console.log('Network switched successfully to GenLayer Studio')
+      } catch (switchError) {
+        console.error('Network switch failed:', switchError)
+        toast.error('Network switch required', {
+          description: 'Please switch to GenLayer Studio network in your wallet to continue.',
+          duration: 6000,
+        })
+        throw new Error('Failed to switch to GenLayer Studio network')
+      }
+
       const contractResult = await analyzeImage(
         result.data.analysisUrl,
         data.description,
-        userAddress
+        userAddress,
+        provider
       )
 
       console.log('Smart contract submission successful:', {

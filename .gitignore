@@ -41,3 +41,4 @@ next-env.d.ts
 
 # temporary directories
 rehash/
+app/test1/page.tsx
