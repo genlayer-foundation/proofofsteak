@@ -130,23 +130,23 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
         throw new Error('Wallet address not found')
       }
 
-      const contractResult = await analyzeImage(
+      // Generate unique ID for this submission
+      const submissionId = crypto.randomUUID()
+
+      // Start transaction but don't wait for receipt
+      const { hash } = await analyzeImage(
         result.data.originalUrl,
         result.data.leaderboardUrl,
         result.data.analysisUrl,
         data.description,
         data.name || '',
         data.location,
-        userAddress
+        userAddress,
+        false // Don't wait for receipt
       )
 
-      console.log('Smart contract submission successful:', {
-        transactionHash: contractResult.hash,
-        status: contractResult.receipt?.status
-      })
+      console.log('Smart contract transaction started:', { hash, submissionId })
 
-      // Generate a temporary ID for the submission (using timestamp + random)
-      const tempId = `pending-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
       const imageUrl = encodeURIComponent(result.data.originalUrl)
 
       // Reset form and close dialog immediately
@@ -154,13 +154,13 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
       setImagePreview(null)
       setOpen(false)
 
-      // Show success and redirect to waiting page
+      // Show success and redirect to waiting page with submission ID
       toast.success('Submitted for AI analysis!', {
         description: 'Your submission is being analyzed by our AI jury.',
         duration: 4000,
       })
 
-      router.push(`/submission/${tempId}?image=${imageUrl}`)
+      router.push(`/submission/waiting?id=${submissionId}&hash=${hash}&image=${imageUrl}`)
     } catch (error) {
       console.error('Upload error:', error)
 

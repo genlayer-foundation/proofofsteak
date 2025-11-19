@@ -1,10 +1,9 @@
 import { studionet } from 'genlayer-js/chains'
-import type { GenLayerChain } from 'genlayer-js'
 
 // Create a custom GenLayer chain based on studionet but with environment-specific overrides
 // This preserves all GenLayer-specific properties (consensus contracts, validators, etc.)
 // while allowing different networks (DevConnect vs regular Studio)
-export const genlayerStudio: GenLayerChain = {
+export const genlayerStudio = {
   ...studionet,
   // Override with environment-specific values
   id: Number(process.env.NEXT_PUBLIC_GENLAYER_CHAIN_ID) || studionet.id,

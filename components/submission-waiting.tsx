@@ -1,15 +1,46 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
+import { waitForTransactionConfirmation } from "@/lib/genlayer/genlayer.js";
 
 interface SubmissionWaitingProps {
   imageUrl?: string;
+  submissionId?: string;
+  transactionHash?: string;
 }
 
-export function SubmissionWaiting({ imageUrl }: SubmissionWaitingProps) {
+export function SubmissionWaiting({ imageUrl, submissionId, transactionHash }: SubmissionWaitingProps) {
+  const router = useRouter();
   // Always use an image - prefer provided imageUrl, fallback to default hero image
   const backgroundImage = imageUrl || "/hero-steak-hd.jpg";
+
+  // Wait for transaction confirmation
+  useEffect(() => {
+    if (!transactionHash || !submissionId) return;
+
+    const waitForConfirmation = async () => {
+      try {
+        console.log('Waiting for transaction confirmation:', transactionHash);
+        const result = await waitForTransactionConfirmation(transactionHash);
+
+        if (result.success) {
+          console.log('Transaction confirmed! Redirecting to submission:', submissionId);
+          router.push(`/submission/${submissionId}`);
+        } else {
+          console.error('Transaction failed:', result.receipt);
+          // Could redirect to an error page or show error state
+        }
+      } catch (error) {
+        console.error('Failed to wait for transaction confirmation:', error);
+        // Handle timeout or other errors
+      }
+    };
+
+    waitForConfirmation();
+  }, [transactionHash, submissionId, router]);
 
   return (
     <div className="h-full bg-black flex flex-col relative overflow-hidden">
@@ -67,8 +98,23 @@ export function SubmissionWaiting({ imageUrl }: SubmissionWaitingProps) {
 
           {/* Subtitle */}
           <p className="text-lg md:text-xl text-white/60 mb-8 font-medium">
-            Our AI consensus is checking the doneness
+            {submissionId
+              ? "Waiting for blockchain confirmation..."
+              : "Our AI consensus is checking the doneness"
+            }
           </p>
+
+          {/* Submission and Transaction Info */}
+          {submissionId && (
+            <p className="text-sm text-white/40 mb-2 font-mono">
+              ID: {submissionId}
+            </p>
+          )}
+          {transactionHash && (
+            <p className="text-sm text-white/40 mb-8 font-mono">
+              Transaction: {transactionHash.slice(0, 10)}...{transactionHash.slice(-6)}
+            </p>
+          )}
 
           {/* Animated loading dots */}
           <div className="flex items-center justify-center gap-2">

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { UploadDialog } from './upload-dialog'
 
 export interface CategorySubmission {
   id: number
@@ -305,13 +306,15 @@ export function CategoryGrid({ submissions, theme, cta, onLoadMore, hasMore, isL
             {cta.description}
           </p>
 
-          <button className={`group relative px-16 py-6 bg-primary/10 border-2 ${getCtaBorderColor()} rounded-lg transition-all duration-500 ${getCtaGlowColor()} hover:scale-105 elegant-shimmer`}>
-            <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <span className="relative text-2xl md:text-3xl font-black text-white tracking-wider flex items-center gap-4">
-              <span className="text-3xl">{theme.emoji}</span>
-              {cta.buttonText}
-            </span>
-          </button>
+          <UploadDialog categoryTheme={theme}>
+            <button className={`group relative px-16 py-6 bg-primary/10 border-2 ${getCtaBorderColor()} rounded-lg transition-all duration-500 ${getCtaGlowColor()} hover:scale-105 elegant-shimmer cursor-pointer`}>
+              <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <span className="relative text-2xl md:text-3xl font-black text-white tracking-wider flex items-center gap-4">
+                <span className="text-3xl">{theme.emoji}</span>
+                {cta.buttonText}
+              </span>
+            </button>
+          </UploadDialog>
         </div>
       )}
     </section>

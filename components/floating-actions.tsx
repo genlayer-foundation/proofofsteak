@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { usePrivy } from '@privy-io/react-auth'
 import type { CategoryTheme } from '@/components/category-grid'
 import {
@@ -68,15 +69,34 @@ const WalletIcon = () => (
   </svg>
 )
 
+const ProfileIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="28"
+    height="28"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+)
+
 interface FloatingActionsProps {
   theme?: CategoryTheme
 }
 
 export function FloatingActions({ theme }: FloatingActionsProps) {
+  const router = useRouter()
   const { login, logout, ready, authenticated, user } = usePrivy()
   const [hoveredUpload, setHoveredUpload] = useState(false)
   const [hoveredHelp, setHoveredHelp] = useState(false)
   const [hoveredWallet, setHoveredWallet] = useState(false)
+  const [hoveredProfile, setHoveredProfile] = useState(false)
 
   const getBorderStyle = (isHovered: boolean) => {
     if (!theme) {
@@ -184,6 +204,14 @@ export function FloatingActions({ theme }: FloatingActionsProps) {
     }
   }
 
+  const handleProfileClick = () => {
+    if (authenticated) {
+      router.push('/profile')
+    } else {
+      login()
+    }
+  }
+
   return (
     <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-4">
       {/* Wallet Connect / Disconnect Button */}
@@ -207,6 +235,25 @@ export function FloatingActions({ theme }: FloatingActionsProps) {
           )}
         </span>
       </button>
+
+      {/* Profile Button - Only show when authenticated */}
+      {authenticated && (
+        <button
+          onClick={handleProfileClick}
+          className="w-16 h-16 rounded-full bg-black/80 backdrop-blur-sm border-2 hover:scale-110 transition-all duration-300 elegant-shimmer cursor-pointer flex items-center justify-center"
+          style={{
+            ...getBorderStyle(hoveredProfile),
+            ...getBoxShadow(hoveredProfile)
+          }}
+          onMouseEnter={() => setHoveredProfile(true)}
+          onMouseLeave={() => setHoveredProfile(false)}
+          aria-label="My submissions"
+        >
+          <span style={getIconColor(hoveredProfile)} className="transition-colors duration-300 flex items-center justify-center">
+            <ProfileIcon />
+          </span>
+        </button>
+      )}
 
       {/* Upload Button */}
       <UploadDialog categoryTheme={theme || {
