@@ -301,7 +301,6 @@ export function UploadDialog({ categoryTheme, children }: UploadDialogProps) {
                             <Input
                               type="file"
                               accept={ACCEPTED_IMAGE_TYPES.join(',')}
-                              capture="environment"
                               onChange={(e) => {
                                 onChange(e.target.files)
                                 handleImageChange(e)
